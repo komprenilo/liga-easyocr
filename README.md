@@ -1,12 +1,4 @@
-# Template project for Python projects using Pants with JupyterLab support
-
-This is a minimal template project using Pants:
-+ No subproject
-+ Only one fixed set of python dependencies
-+ With IDE support
-+ With JupyterLab support
-
-For demo project with multiple subprojects and dependencies sets, see [pants-pyspark](https://github.com/da-tubi/pants-pyspark).
+# EasyOCR on Liga
 
 ## How to launch jupyterlab
 ```

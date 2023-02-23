@@ -9,10 +9,9 @@ backend_packages.add = [
 root_patterns = ["/"]
 
 [python]
-interpreter_constraints = ["==3.8.14"]
+interpreter_constraints = [">=3.8,<3.10"]
 enable_resolves = true
 
 [python.resolves]
   lab = "3rdparty/python/lab.lock"
   default = "3rdparty/python/default.lock"
-
