@@ -1,25 +1,28 @@
-from typing import Any, Callable, Tuple, List, Union
+from typing import Any, Callable, Tuple
+
+from numpy import ndarray
 
 from liga.mixin import Pretrained
 from liga.registry.model import ModelType, ModelSpec
-from ligavision.spark.types import Box2d
+from ligavision.spark.types import Mask
+from ligavision.dsl import Image
 
-def convert_pred_groups_to_box2d(pred_groups):
+
+def convert_pred_groups_for_rikai(pred_groups, shapes):
     result_groups = []
     for i in range(len(pred_groups)):
         pred_group = pred_groups[i]
+        shape = shapes[i]
         result_group = []
         for pred in pred_group:
             points = pred[0]
             text = pred[1]
-            conf = pred[2]
-            point_x = []
-            point_y = []
+            poly = []
             for point in points:
-                point_x.append(point[0])
-                point_y.append(point[1])
-            bbox = Box2d(min(point_x), min(point_y), max(point_x), max(point_y))
-            result = {'text': text.lower(), 'bbox': bbox}
+                poly.append(float(point[0]))
+                poly.append(float(point[1]))
+            mask = Mask.from_polygon([poly], shape[1], shape[0])
+            result = {'text': text, 'mask': mask}
             result_group.append(result)
         result_groups.append(result_group)
     return result_groups
@@ -38,16 +41,21 @@ class EasyOCRModelType(ModelType, Pretrained):
         return easyocr.Reader(['en'])
     
     def schema(self) -> str:
-        return "array<struct<text:string,bbox:box2d>>"
+        return "array<struct<text:string,mask:mask>>"
 
     def transform(self) -> Callable:
         return lambda image: image.to_numpy()
 
     def predict(self, images, *args, **kwargs) -> Any:
+        def _ndarray_to_shape(image: ndarray) -> Tuple:
+            pil_image = Image.from_array(image).to_pil()
+            return (pil_image.width, pil_image.height)
+
         pred_groups = []
         for image in images:
             pred_group = self.model.readtext(image, canvas_size=600)
             pred_groups.append(pred_group)
-        return convert_pred_groups_to_box2d(pred_groups)
+        shapes = [_ndarray_to_shape(image) for image in images]
+        return convert_pred_groups_for_rikai(pred_groups, shapes)
 
 MODEL_TYPE = EasyOCRModelType()
