@@ -1,6 +1,7 @@
 from typing import Any, Callable, Tuple
 
 from numpy import ndarray
+import easyocr
 
 from liga.mixin import Pretrained
 from liga.registry.model import ModelType, ModelSpec
@@ -29,16 +30,22 @@ def convert_pred_groups_for_rikai(pred_groups, shapes):
 
 
 class EasyOCRModelType(ModelType, Pretrained):
-    def __init__(self):
+    def __init__(self, language):
         super().__init__()
         self.model = None
+        if isinstance(language, list):
+            self.langs = language
+        elif isinstance(language, str):
+            self.langs = [language]
+        else:
+            raise RuntimeError("Invalid type of language")
 
     def load_model(self, spec: ModelSpec, **kwargs):
         self.model = self.pretrained_model()
 
     def pretrained_model(self):
-        import easyocr
-        return easyocr.Reader(['en'])
+        #  https://www.jaided.ai/easyocr/
+        return easyocr.Reader(self.langs)
     
     def schema(self) -> str:
         return "array<struct<text:string,mask:mask>>"
@@ -58,4 +65,4 @@ class EasyOCRModelType(ModelType, Pretrained):
         shapes = [_ndarray_to_shape(image) for image in images]
         return convert_pred_groups_for_rikai(pred_groups, shapes)
 
-MODEL_TYPE = EasyOCRModelType()
+MODEL_TYPE = EasyOCRModelType(["en"])
