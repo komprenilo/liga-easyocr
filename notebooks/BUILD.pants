@@ -9,6 +9,10 @@ python_requirement(
 python_sources(
     name="lab",
     sources=["lab.py"],
-    dependencies=["//:sources"],
+    dependencies=[
+        "//liga/easyocr:sources",
+        "//liga/easyocr/models:sources",
+        "//:requirements@resolve=lab",
+    ],
     resolve="lab",
 )

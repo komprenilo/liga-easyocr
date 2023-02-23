@@ -1,0 +1,1 @@
+python_sources(name = "sources", resolve=parametrize("default", "lab"))
