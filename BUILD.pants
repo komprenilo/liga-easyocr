@@ -1,0 +1,12 @@
+# See https://www.pantsbuild.org/docs/python-third-party-dependencies for more info
+python_requirement(
+    name="requirements",
+    requirements=[
+        "pandas==1.2.4",
+    ],
+    resolve=parametrize("default", "lab")
+)
+
+# See https://www.pantsbuild.org/docs/reference-python_sources for more info
+python_sources(name = "sources", sources=["**/*.py"], resolve=parametrize("default", "lab"))
+
