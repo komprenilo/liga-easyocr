@@ -16,3 +16,15 @@ python_requirement(
     ],
     resolve="lab",
 )
+
+python_distribution(
+    name="liga-easyocr",
+    dependencies=[
+        "//liga/easyocr:sources@resolve=default",
+        "//liga/easyocr/models:sources@resolve=default",
+    ],
+    provides=python_artifact(
+        name="liga-easyocr",
+        version="0.2.0.dev0",
+    ),
+)
